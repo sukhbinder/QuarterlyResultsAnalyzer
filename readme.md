@@ -4,5 +4,5 @@ Every quarter when results come out, I spend suffiecint hours looking at the fin
 
 Hope someone else will find it as useful as I do. Will put the results on my blog. 
 
-
-![image](https://github.com/sukhbinder/AutoCapitalizeFortranProgram/blob/master/images/autoCaps.png)
+sukhbinder/QuarterlyResultsAnalyzer
+![image](https://github.com/sukhbinder/QuarterlyResultsAnalyzer/blob/master/QuarterAnalyzer.png)
