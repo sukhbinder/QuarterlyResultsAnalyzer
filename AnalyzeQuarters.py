@@ -56,7 +56,7 @@ def getLastFiveQuarters(quaters):
 
 def TitleSlide(text='Thank You'):
     fig=plt.figure(figsize=(16,6))
-    plt.text(0.50,0.5,text,fontsize=15)
+    plt.text(0.25,0.5,text,fontsize=15)
     plt.axis('off')
     return fig
 
@@ -91,7 +91,7 @@ def GetDataAsFigures(filename):
 
 def CreatePDFFileFromFigures(figures,filename):
     ''' Creates PDF file from figures list'''
-    pdf=PdfPages(filename.replace('.pdf',''))
+    pdf=PdfPages(filename)
     for fig in figures:
         pdf.savefig(fig)
         
@@ -106,7 +106,7 @@ def AnalyzeCreatePDFFile(filename):
     
 
 if __name__ == "__main__":
-    fpath=r'C:\Users\singhs\Downloads/'
+    fpath=r'tests/'
     fname='Tasty Bite Eat.xlsx'
     AnalyzeCreatePDFFile(fpath+fname)
 
