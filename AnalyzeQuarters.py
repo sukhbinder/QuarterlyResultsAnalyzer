@@ -20,6 +20,24 @@ def getQuarters(filename):
     return quaters
 
 #quaters=getQuarters(fpath+fname)
+def getHalfYearlyPercent(quaters):
+    fig,ax=plt.subplots(1,1)
+    thisyear=quaters[[-1,-2]].sum(axis=1)
+    lastyear=quaters[[-5,-6]].sum(axis=1)
+    df=pd.DataFrame({'this':thisyear,'last':lastyear})
+    df=df.T.pct_change().iloc[1]
+    p=df.plot(ax=ax,kind='bar',figsize=(16,9),title='Half Yearly %',table=True);
+    p.get_xaxis().set_visible(False)
+    return fig
+    
+def getHalfYearly(quaters):
+    fig,ax=plt.subplots(1,1)
+    thisyear=quaters[[-1,-2]].sum(axis=1)
+    lastyear=quaters[[-5,-6]].sum(axis=1)
+    df=pd.DataFrame({'this':thisyear,'last':lastyear})
+    p=df.plot(ax=ax,kind='bar',figsize=(16,9),title='Half Yearly',table=True);
+    p.get_xaxis().set_visible(False)
+    return fig
 
 def getQuaterlyFigures(quaters):
     fig,ax=plt.subplots(1,1)
@@ -61,7 +79,7 @@ def TitleSlide(text='Thank You'):
     return fig
 
 def GetDataAsFigures(filename):
-    ''' Takes screer.in excel sheet and analyses '''
+    ''' Takes screenr.in excel sheet and analyses '''
     figures=[]
     
     quaters=getQuarters(filename)  
@@ -83,6 +101,12 @@ def GetDataAsFigures(filename):
     fig=getQuarterPercentChange(quaters)
     figures.append(fig)
     
+    fig=getHalfYearly(quaters)
+    figures.append(fig)
+
+    fig=getHalfYearlyPercent(quaters)
+    figures.append(fig)
+
     fig=TitleSlide("Thank You")
     figures.append(fig)
                 
