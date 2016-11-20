@@ -101,11 +101,18 @@ def GetDataAsFigures(filename):
     fig=getQuarterPercentChange(quaters)
     figures.append(fig)
     
-    fig=getHalfYearly(quaters)
-    figures.append(fig)
+    lastmonth=quaters.columns[-1]
+    lastmonth=lastmonth.month
+   
+    if (lastmonth ==9):
+    	fig=getHalfYearly(quaters)
+    	figures.append(fig)
 
-    fig=getHalfYearlyPercent(quaters)
-    figures.append(fig)
+   	fig=getHalfYearlyPercent(quaters)
+    	figures.append(fig)
+    elif (lastmonth == 12):
+	pass
+
 
     fig=TitleSlide("Thank You")
     figures.append(fig)
