@@ -24,7 +24,25 @@ def getQuarters(filename):
     return quaters
 
 #quaters=getQuarters(fpath+fname)
+def get_pl_bal_cash_price(filename):
+    xp = pd.ExcelFile(filename)
+    nesco = xp.parse("Data Sheet", header=15)
+    pl=nesco.iloc[:15,:].copy()
+    bal = nesco.iloc[39:56,:].copy()
+    cash=nesco.iloc[64:69,:].copy()
+    price=nesco.iloc[73,:].copy()
 
+    pl.set_index('Report Date', inplace=True)
+    pl.index.name = "PL"
+
+    bal.set_index('Report Date', inplace=True)
+    bal.index.name = "BalanceSheet"
+
+    cash.set_index('Report Date', inplace=True)
+    cash.index.name = "CashFlow"
+
+    return pl, bal, cash, price
+    
 
 def getHalfYearlyPercent(quaters):
     fig, ax = plt.subplots(1, 1)
