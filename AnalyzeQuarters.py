@@ -41,7 +41,8 @@ def get_pl_bal_cash_price(filename):
     cash.set_index('Report Date', inplace=True)
     cash.index.name = "CashFlow"
 
-    return pl, bal, cash, price
+    df = pd.concat([pl,bal,cash])
+    return df,price
     
 
 def getHalfYearlyPercent(quaters):
