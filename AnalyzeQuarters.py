@@ -220,6 +220,11 @@ def compareLastYearResults(df):
     # p.get_xaxis().set_visible(False)
     return fig
 
+# Tables
+# fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+# ax1 = ax[1].table(cellText=data[cols2].values, colLabels=data[cols2].columns, loc='center', rowLabels=data[cols2].index)
+# ax1 = ax[0].table(cellText=data[cols].values, colLabels=data[cols].columns, loc='center', rowLabels=data[cols].index)
+# plt.show()
 
 def mainpage(df):
     text = """
