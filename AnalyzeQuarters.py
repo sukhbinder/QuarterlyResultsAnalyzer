@@ -69,10 +69,11 @@ def add_otherdata(dft):
     dft["DividendPayout"] = 100.0*(dft["Dividend Amount"]/dft["Net profit"])
     dft["BookValue"] = dft.equity / (dft["No. of Equity Shares"]/1e7)
     dft["siv"] = dft.BookValue*(dft.roe.shift()/12.0)
-    dft["siv"] = dft.BookValue*(dft.roe.shift()/8.0)
+    dft["siv2"] = dft.BookValue*(dft.roe.shift()/8.0)
     dft["QuickRank"] = (dft.GOAR * (dft.cashbyNP/100.00)
                         * dft.roe) / (1+dft.d2e)
     dft["eps"] = dft["Net profit"] / (dft["No. of Equity Shares"]/1e7)
+    dft["cash"] = dft["Cash from Operating Activity"]
     return dft
 
 #GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
