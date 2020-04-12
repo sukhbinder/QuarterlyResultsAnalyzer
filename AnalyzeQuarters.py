@@ -32,6 +32,7 @@ def get_pl_bal_cash_price(filename):
     bal = nesco.iloc[39:56, :].copy()
     cash = nesco.iloc[64:69, :].copy()
     price = nesco.iloc[73, :].copy()
+    price = price.iloc[1:].copy()
 
     pl.set_index('Report Date', inplace=True)
     pl.index.name = "PL"
@@ -43,7 +44,9 @@ def get_pl_bal_cash_price(filename):
     cash.index.name = "CashFlow"
 
     df = pd.concat([pl, bal, cash])
-    return df.T, price
+    df = df.T
+    df["price"] = price
+    return df
 
 # first = ["Sales","equity", "Profit before tax", "Cash from Operating Activity"]
 # margin_roe =["opm", "npm", "roe"]
@@ -61,10 +64,19 @@ def add_otherdata(dft):
     dft["roe"] = (dft["Net profit"] / dft["equity"])*100.0
     dft["cashbyNP"] = (dft["Cash from Operating Activity"] /
                        dft["Net profit"])*100.0
+    dft["GOAR"] = 100.0*(dft["Net profit"].diff() /
+                         (dft["Net profit"] - dft["Dividend Amount"]))
+    dft["DividendPayout"] = 100.0*(dft["Dividend Amount"]/dft["Net profit"])
+    dft["BookValue"] = dft.equity / (dft["No. of Equity Shares"]/1e7)
+    dft["siv"] = dft.BookValue*(dft.roe.shift()/12.0)
+    dft["siv"] = dft.BookValue*(dft.roe.shift()/8.0)
+    dft["QuickRank"] = (dft.GOAR * (dft.cashbyNP/100.00)
+                        * dft.roe) / (1+dft.d2e)
+    dft["eps"] = dft["Net profit"] / (dft["No. of Equity Shares"]/1e7)
     return dft
 
 #GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
-#quick rank Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
+#quick rank =Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
 # cash/np = Cash from operations last year / Net Profit last year
 # siv = (Return on equity preceding year/12.00)* Book value
 
@@ -199,7 +211,7 @@ def get_overall(filename):
     # fig = TitleSlide(os.path.basename(filename).replace('.xlsx', ''))
     # figures.append(fig)
 
-    df, price = get_pl_bal_cash_price(filename)
+    df = get_pl_bal_cash_price(filename)
     df = add_otherdata(df)
 
     fig = sales_any_other_data(df)
