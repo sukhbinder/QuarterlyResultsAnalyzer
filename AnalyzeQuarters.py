@@ -202,6 +202,12 @@ def TitleSlide(text='Thank You'):
     plt.axis('off')
     return fig
 
+def price_siv(df):
+    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+    cols = ["price", "siv", "siv2"]
+    ax1 = df[cols].plot(ax=ax, rot=0, title="Price with intrinsic value")
+    return fig
+
 def compareLastYearResults(df):
     cols = ["Sales", "expense", "OperatingProfit","Net profit", "cash", "BookValue","Borrowings"]
     cols2 =["opm","npm", "roe", "GOAR", "d2e"]
@@ -264,6 +270,9 @@ def get_overall(filename):
     figures.append(fig)
 
     fig = compareLastYearResults(df)
+    figures.append(fig)
+
+    fig = price_siv(df)
     figures.append(fig)
 
 
