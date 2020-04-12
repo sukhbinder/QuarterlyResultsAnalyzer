@@ -1,15 +1,14 @@
 # coding: utf-8
 #
 
-from matplotlib.backends.backend_pdf import PdfPages
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
 import argparse
-
 import os
 
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.backends.backend_pdf import PdfPages
 
 matplotlib.style.use('ggplot')
 
@@ -24,13 +23,15 @@ def getQuarters(filename):
     return quaters
 
 #quaters=getQuarters(fpath+fname)
+
+
 def get_pl_bal_cash_price(filename):
     xp = pd.ExcelFile(filename)
     nesco = xp.parse("Data Sheet", header=15)
-    pl=nesco.iloc[:15,:].copy()
-    bal = nesco.iloc[39:56,:].copy()
-    cash=nesco.iloc[64:69,:].copy()
-    price=nesco.iloc[73,:].copy()
+    pl = nesco.iloc[:15, :].copy()
+    bal = nesco.iloc[39:56, :].copy()
+    cash = nesco.iloc[64:69, :].copy()
+    price = nesco.iloc[73, :].copy()
 
     pl.set_index('Report Date', inplace=True)
     pl.index.name = "PL"
@@ -41,9 +42,77 @@ def get_pl_bal_cash_price(filename):
     cash.set_index('Report Date', inplace=True)
     cash.index.name = "CashFlow"
 
-    df = pd.concat([pl,bal,cash])
-    return df,price
-    
+    df = pd.concat([pl, bal, cash])
+    return df.T, price
+
+# first = ["Sales","equity", "Profit before tax", "Cash from Operating Activity"]
+# margin_roe =["opm", "npm", "roe"]
+
+
+def add_otherdata(dft):
+    exps = ["Power and Fuel", "Other Mfr. Exp",
+            "Employee Cost", "Selling and admin", "Other Expenses"]
+    dft["equity"] = dft["Equity Share Capital"] + dft["Reserves"]
+    dft["expense"] = dft[exps].sum(axis=1) + dft["Change in Inventory"]*-1.0
+    dft["OperatingProfit"] = dft["Sales"] - dft["expense"]
+    dft["opm"] = (dft["OperatingProfit"]/dft["Sales"])*100.0
+    dft["npm"] = (dft["Net profit"]/dft["Sales"])*100.
+    dft["d2e"] = dft["Borrowings"]/dft["equity"]
+    dft["roe"] = (dft["Net profit"] / dft["equity"])*100.0
+    dft["cashbyNP"] = (dft["Cash from Operating Activity"] /
+                       dft["Net profit"])*100.0
+    return dft
+
+#GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
+#quick rank Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
+# cash/np = Cash from operations last year / Net Profit last year
+# siv = (Return on equity preceding year/12.00)* Book value
+
+
+def Average5Year(df):
+    return df.iloc[5:, ].mean()
+
+
+def Average10Year(df):
+    return df.mean()
+
+
+def show_roe_opm_npm(df):
+    margin_roe = ["opm", "npm", "roe", "cashbyNP"]
+    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+    ax1 = df[margin_roe].T.plot.bar(ax=ax, figsize=(
+        16, 9), rot=0, title="ROE Trend", table=True)
+    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    return fig
+
+
+def show_roe_opm_npm_line(df):
+    margin_roe = ["opm", "npm", "roe", "cashbyNP"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
+    ax1 = df[["opm", "cashbyNP"]].plot(ax=ax[0], figsize=(16, 9), rot=0)
+    ax1 = df[["npm", "roe"]].plot(ax=ax[1], figsize=(16, 9), rot=0)
+    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    return fig
+
+
+def sales_any_other_data_line(df):
+    fig, ax = plt.subplots(2, 1, sharex=True,  figsize=(16, 9))
+    ax1 = df[["Sales", "equity"]].plot(ax=ax[0], rot=0)
+    ax2 = df[["Profit before tax", "Cash from Operating Activity"]].plot(
+        ax=ax[1], rot=0)
+    # ax[0].set_xticklabels(map(lambda x: x.year, df.index))
+    return fig
+
+
+def sales_any_other_data(df):
+    first = ["Sales", "equity", "Profit before tax",
+             "Cash from Operating Activity"]
+    fig, ax = plt.subplots(1, 1)
+    ax1 = df[first].T.plot.bar(ax=ax, figsize=(
+        16, 9), rot=0, title="Sales", table=True)
+    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    return fig
+
 
 def getHalfYearlyPercent(quaters):
     fig, ax = plt.subplots(1, 1)
@@ -122,14 +191,49 @@ def TitleSlide(text='Thank You'):
     return fig
 
 
+def get_overall(filename):
+    """
+    Make a basic annual report diagram for the file.
+    """
+    figures = []
+    # fig = TitleSlide(os.path.basename(filename).replace('.xlsx', ''))
+    # figures.append(fig)
+
+    df, price = get_pl_bal_cash_price(filename)
+    df = add_otherdata(df)
+
+    fig = sales_any_other_data(df)
+    figures.append(fig)
+
+    fig = sales_any_other_data_line(df)
+    figures.append(fig)
+
+    fig = show_roe_opm_npm_line(df)
+    figures.append(fig)
+
+    fig = show_roe_opm_npm(df)
+    figures.append(fig)
+
+    return figures
+
+
 def GetDataAsFigures(filename):
     ''' Takes screenr.in excel sheet and analyses '''
     figures = []
 
-    quaters = getQuarters(filename)
     fig = TitleSlide(os.path.basename(filename).replace('.xlsx', ''))
     figures.append(fig)
 
+    fig = TitleSlide("Annual Summary")
+    figures.append(fig)
+
+    figs = get_overall(filename)
+    figures.extend(figs)
+
+    fig = TitleSlide("Quarterly Summary")
+    figures.append(fig)
+
+    quaters = getQuarters(filename)
     fig = getLastFiveQuarters(quaters)
     figures.append(fig)
 
@@ -175,7 +279,6 @@ def CreatePDFFileFromFigures(figures, filename):
 
 def AnalyzeCreatePDFFile(filename):
     '''Analyses screenr for quaterly results'''
-    import os
     outfile = filename.replace('.xlsx', '.pdf')
 
     figures = GetDataAsFigures(filename)
