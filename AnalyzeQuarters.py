@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 
-matplotlib.style.use('ggplot')
+matplotlib.style.use('bmh')
 
 
 def getQuarters(filename):
@@ -100,7 +100,6 @@ def show_roe_opm_npm(df):
 
 
 def show_roe_opm_npm_line(df):
-    margin_roe = ["opm", "npm", "roe", "cashbyNP"]
     fig, ax = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
     ax1 = df[["opm", "cashbyNP"]].plot(ax=ax[0], figsize=(16, 9), rot=0)
     ax1 = df[["npm", "roe"]].plot(ax=ax[1], figsize=(16, 9), rot=0)
@@ -203,6 +202,40 @@ def TitleSlide(text='Thank You'):
     plt.axis('off')
     return fig
 
+def compareLastYearResults(df):
+    cols = ["Sales", "expense", "OperatingProfit","Net profit", "cash", "BookValue","Borrowings"]
+    cols2 =["opm","npm", "roe", "GOAR", "d2e"]
+    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+    data = df.iloc[-2:,:]
+    p = data[cols].T.plot(ax=ax[0], kind='bar',
+                  rot=0, title='Last Year Comparision')
+    p = data[cols2].T.plot(ax=ax[1], kind='bar',
+                  rot=0, title='Last Year Comparision')
+    # p.get_xaxis().set_visible(False)
+    return fig
+
+
+def mainpage(df):
+    text = """
+    Sale:            {:0.2f}             Net Profit:     {:0.2f}                 Book Value: {:0.2f}
+
+
+
+    Debt to Equity:  {:0.2f}             NPM:  {:0.2f}%                 ROE:        {:0.2f}%
+
+
+
+    OPM: {:0.2f}%     Dividend:    {:0.2f}           Cash: {:0.2f}
+
+    """
+    fig = plt.figure(figsize=(16,6))
+    vals = [df.Sales, df["Net profit"], df.BookValue, df.d2e, df.npm, df.roe, df.opm,
+    df["Dividend Amount"], df.cash]
+    plt.text(0.1,0.4, text.format(*vals), fontsize=15)
+    plt.axis('off')
+    return fig
+
+
 
 def get_overall(filename):
     """
@@ -215,6 +248,9 @@ def get_overall(filename):
     df = get_pl_bal_cash_price(filename)
     df = add_otherdata(df)
 
+    fig = mainpage(df.iloc[-1])
+    figures.append(fig)
+
     fig = sales_any_other_data(df)
     figures.append(fig)
 
@@ -226,6 +262,10 @@ def get_overall(filename):
 
     fig = show_roe_opm_npm(df)
     figures.append(fig)
+
+    fig = compareLastYearResults(df)
+    figures.append(fig)
+
 
     return figures
 
