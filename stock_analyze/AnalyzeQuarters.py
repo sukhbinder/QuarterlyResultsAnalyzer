@@ -81,6 +81,13 @@ def add_otherdata(dft):
 # cash/np = Cash from operations last year / Net Profit last year
 # siv = (Return on equity preceding year/12.00)* Book value
 
+def current_year(df):
+    try:
+        df.index = pd.to_datetime(df.index)
+        year = df.index.year[-1]
+    except Exception:
+       year = df.index[-1]
+    return year
 
 def Average5Year(df):
     return df.iloc[5:, ].mean()
@@ -91,10 +98,11 @@ def Average10Year(df):
 
 
 def show_roe_opm_npm(df):
-    margin_roe = ["opm", "npm", "roe", "cashbyNP"]
-    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
-    ax1 = df[margin_roe].T.plot.bar(ax=ax, figsize=(
-        16, 9), rot=0, title="ROE Trend", table=True)
+    margin_roe = ["opm", "cashbyNP" ]
+    second = ["npm", "roe" ]
+    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+    ax1 = df[margin_roe].T.plot.bar(ax=ax[0],rot=0, title="10 Year History")
+    ax1 = df[second].T.plot.bar(ax=ax[1],rot=0, title="10 Year History")
     # ax1.set_xticklabels(map(lambda x: x.year, df.index))
     return fig
 
@@ -117,12 +125,16 @@ def sales_any_other_data_line(df):
 
 
 def sales_any_other_data(df):
-    first = ["Sales", "equity", "Profit before tax",
+    first = ["Sales", "equity"]
+    second =["Profit before tax",
              "Cash from Operating Activity"]
-    fig, ax = plt.subplots(1, 1)
-    ax1 = df[first].T.plot.bar(ax=ax, figsize=(
-        16, 9), rot=0, title="Sales", table=True)
-    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+    ax1 = df[first].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
+    ax1 = df[second].plot.bar(ax=ax[1], rot=0, title="10 Year History")
+    try:
+        ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    except Exception:
+        pass
     return fig
 
 
@@ -209,14 +221,27 @@ def price_siv(df):
     return fig
 
 def compareLastYearResults(df):
-    cols = ["Sales", "expense", "OperatingProfit","Net profit", "cash", "BookValue","Borrowings"]
-    cols2 =["opm","npm", "roe", "GOAR", "d2e"]
-    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+    cols = ["Sales", "expense", "OperatingProfit","Net profit", "cash", "Dividend Amount","Borrowings"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
     data = df.iloc[-2:,:]
-    p = data[cols].T.plot(ax=ax[0], kind='bar',
+    ip = data[cols].T.plot(ax=ax[0], kind='bar',
                   rot=0, title='Last Year Comparision')
-    p = data[cols2].T.plot(ax=ax[1], kind='bar',
-                  rot=0, title='Last Year Comparision')
+
+    p=data[cols].pct_change().iloc[-1]*100 
+    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+    # p.get_xaxis().set_visible(False)
+    return fig
+
+
+def compareLastYearResults_roe(df):
+    cols2 =["opm","npm", "roe", "GOAR", "d2e"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+    data = df.iloc[-2:,:]
+    ip = data[cols2].T.plot(ax=ax[0], kind='bar',
+                  rot=0, title='Last Year Comparision', alpha=0.8)
+
+    p=data[cols2].pct_change().iloc[-1]*100 
+    ia = p.plot.bar(ax=ax[1], rot=0, title='% change', alpha=0.8)
     # p.get_xaxis().set_visible(False)
     return fig
 
@@ -226,24 +251,28 @@ def compareLastYearResults(df):
 # ax1 = ax[0].table(cellText=data[cols].values, colLabels=data[cols].columns, loc='center', rowLabels=data[cols].index)
 # plt.show()
 
-def mainpage(df):
+def mainpage(df, cyear):
     text = """
-    Sale:            {:0.2f}             Net Profit:     {:0.2f}                 Book Value: {:0.2f}
+    Sale: {:0.1f}      Net Profit: {:0.1f}      Cash: {:0.1f}   Book Value: {:0.1f} 
 
+    Dividend: {:0.1f}  DebttoEquity: {:0.2f}    OPM: {:0.2f}%   NPM: {:0.2f}%
 
-
-    Debt to Equity:  {:0.2f}             NPM:  {:0.2f}%                 ROE:        {:0.2f}%
-
-
-
-    OPM: {:0.2f}%     Dividend:    {:0.2f}           Cash: {:0.2f}
-
+    ROE: {:0.2f}%     GOAR: {:0.2f}%  
     """
-    fig = plt.figure(figsize=(16,6))
-    vals = [df.Sales, df["Net profit"], df.BookValue, df.d2e, df.npm, df.roe, df.opm,
-    df["Dividend Amount"], df.cash]
-    plt.text(0.1,0.4, text.format(*vals), fontsize=15)
-    plt.axis('off')
+
+    fig, ax = plt.subplots(2, 2, figsize=(16,6))
+    ax= ax.ravel()
+    valss = ["Sales", "Net profit", "cash", "BookValue", "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR"]
+    vals = df[valss].values
+    ax[0].text(0.1,0.1, text.format(*vals), fontsize=15)
+    ax[0].set_title("For Year {} ".format(cyear))
+    ax[0].axis('off')
+    ax[1].axis('off')
+    ax1=df[["Sales", "Net profit", "cash", "BookValue", "Dividend Amount"]].plot.bar(ax=ax[2], rot=0)
+    ax1=df[["opm", "npm", "roe", "GOAR"]].plot.bar(ax=ax[3], rot=0)
+    ax[2].grid(False)
+    ax[3].grid(False)
+    # ax[1].axis('off')
     return fig
 
 
@@ -259,7 +288,7 @@ def get_overall(filename):
     df = get_pl_bal_cash_price(filename)
     df = add_otherdata(df)
 
-    fig = mainpage(df.iloc[-1])
+    fig = mainpage(df.iloc[-1], current_year(df) )
     figures.append(fig)
 
     fig = sales_any_other_data(df)
@@ -268,13 +297,16 @@ def get_overall(filename):
     fig = sales_any_other_data_line(df)
     figures.append(fig)
 
-    fig = show_roe_opm_npm_line(df)
-    figures.append(fig)
-
     fig = show_roe_opm_npm(df)
     figures.append(fig)
 
+    fig = show_roe_opm_npm_line(df)
+    figures.append(fig)
+    
     fig = compareLastYearResults(df)
+    figures.append(fig)
+
+    fig =  compareLastYearResults_roe(df)
     figures.append(fig)
 
     fig = price_siv(df)
