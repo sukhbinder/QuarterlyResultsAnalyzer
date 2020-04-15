@@ -74,12 +74,14 @@ def add_otherdata(dft):
                         * dft.roe) / (1+dft.d2e)
     dft["eps"] = dft["Net profit"] / (dft["No. of Equity Shares"]/1e7)
     dft["cash"] = dft["Cash from Operating Activity"]
+    dft["Interest%NP"] = 100.0*(dft["Interest"] /dft["Net profit"])
     return dft
 
 #GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
 #quick rank =Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
 # cash/np = Cash from operations last year / Net Profit last year
 # siv = (Return on equity preceding year/12.00)* Book value
+
 
 def current_year(df):
     try:
@@ -88,6 +90,7 @@ def current_year(df):
     except Exception:
        year = df.index[-1]
     return year
+
 
 def Average5Year(df):
     return df.iloc[5:, ].mean()
@@ -98,11 +101,11 @@ def Average10Year(df):
 
 
 def show_roe_opm_npm(df):
-    margin_roe = ["opm", "cashbyNP" ]
-    second = ["npm", "roe" ]
+    margin_roe = ["opm", "cashbyNP"]
+    second = ["npm", "roe"]
     fig, ax = plt.subplots(1, 2, figsize=(16, 9))
-    ax1 = df[margin_roe].T.plot.bar(ax=ax[0],rot=0, title="10 Year History")
-    ax1 = df[second].T.plot.bar(ax=ax[1],rot=0, title="10 Year History")
+    ax1 = df[margin_roe].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
+    ax1 = df[second].T.plot.bar(ax=ax[1], rot=0, title="10 Year History")
     # ax1.set_xticklabels(map(lambda x: x.year, df.index))
     return fig
 
@@ -126,8 +129,8 @@ def sales_any_other_data_line(df):
 
 def sales_any_other_data(df):
     first = ["Sales", "equity"]
-    second =["Profit before tax",
-             "Cash from Operating Activity"]
+    second = ["Profit before tax",
+              "Cash from Operating Activity"]
     fig, ax = plt.subplots(1, 2, figsize=(16, 9))
     ax1 = df[first].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
     ax1 = df[second].plot.bar(ax=ax[1], rot=0, title="10 Year History")
@@ -214,33 +217,36 @@ def TitleSlide(text='Thank You'):
     plt.axis('off')
     return fig
 
+
 def price_siv(df):
     fig, ax = plt.subplots(1, 1, figsize=(16, 9))
     cols = ["price", "siv", "siv2"]
     ax1 = df[cols].plot(ax=ax, rot=0, title="Price with intrinsic value")
     return fig
 
-def compareLastYearResults(df):
-    cols = ["Sales", "expense", "OperatingProfit","Net profit", "cash", "Dividend Amount","Borrowings"]
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    data = df.iloc[-2:,:]
-    ip = data[cols].T.plot(ax=ax[0], kind='bar',
-                  rot=0, title='Last Year Comparision')
 
-    p=data[cols].pct_change().iloc[-1]*100 
+def compareLastYearResults(df):
+    cols = ["Sales", "expense", "OperatingProfit", "Net profit",
+            "cash", "Dividend Amount", "Borrowings", "Interest"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+    data = df.iloc[-2:, :]
+    ip = data[cols].T.plot(ax=ax[0], kind='bar',
+                           rot=0, title='Last Year Comparision')
+
+    p = data[cols].pct_change().iloc[-1]*100
     ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
     # p.get_xaxis().set_visible(False)
     return fig
 
 
 def compareLastYearResults_roe(df):
-    cols2 =["opm","npm", "roe", "GOAR", "d2e"]
+    cols2 = ["opm", "npm", "roe", "GOAR", "Interest%NP", "d2e"]
     fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    data = df.iloc[-2:,:]
+    data = df.iloc[-2:, :]
     ip = data[cols2].T.plot(ax=ax[0], kind='bar',
-                  rot=0, title='Last Year Comparision', alpha=0.8)
+                            rot=0, title='Last Year Comparision', alpha=0.8)
 
-    p=data[cols2].pct_change().iloc[-1]*100 
+    p = data[cols2].pct_change().iloc[-1]*100
     ia = p.plot.bar(ax=ax[1], rot=0, title='% change', alpha=0.8)
     # p.get_xaxis().set_visible(False)
     return fig
@@ -251,30 +257,33 @@ def compareLastYearResults_roe(df):
 # ax1 = ax[0].table(cellText=data[cols].values, colLabels=data[cols].columns, loc='center', rowLabels=data[cols].index)
 # plt.show()
 
+
 def mainpage(df, cyear):
     text = """
     Sale: {:0.1f}      Net Profit: {:0.1f}      Cash: {:0.1f}   Book Value: {:0.1f} 
 
     Dividend: {:0.1f}  DebttoEquity: {:0.2f}    OPM: {:0.2f}%   NPM: {:0.2f}%
 
-    ROE: {:0.2f}%     GOAR: {:0.2f}%  
+    ROE: {:0.2f}%     GOAR: {:0.2f}%    Interest paid: {:0.2f}
     """
 
-    fig, ax = plt.subplots(2, 2, figsize=(16,6))
-    ax= ax.ravel()
-    valss = ["Sales", "Net profit", "cash", "BookValue", "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR"]
+    fig, ax = plt.subplots(2, 2, figsize=(16, 6))
+    ax = ax.ravel()
+    valss = ["Sales", "Net profit", "cash", "BookValue",
+             "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest"]
     vals = df[valss].values
-    ax[0].text(0.1,0.1, text.format(*vals), fontsize=15)
+    ax[0].text(0.1, 0.1, text.format(*vals), fontsize=15)
     ax[0].set_title("For Year {} ".format(cyear))
     ax[0].axis('off')
     ax[1].axis('off')
-    ax1=df[["Sales", "Net profit", "cash", "BookValue", "Dividend Amount"]].plot.bar(ax=ax[2], rot=0)
-    ax1=df[["opm", "npm", "roe", "GOAR"]].plot.bar(ax=ax[3], rot=0)
+    ax1 = df[["Sales", "Net profit", "cash", "BookValue",
+              "Dividend Amount", "Interest"]].plot.bar(ax=ax[2], rot=0)
+    ax1 = df[["opm", "npm", "roe", "GOAR", "Interest%NP"]
+             ].plot.bar(ax=ax[3], rot=0)
     ax[2].grid(False)
     ax[3].grid(False)
     # ax[1].axis('off')
     return fig
-
 
 
 def get_overall(filename):
@@ -288,7 +297,7 @@ def get_overall(filename):
     df = get_pl_bal_cash_price(filename)
     df = add_otherdata(df)
 
-    fig = mainpage(df.iloc[-1], current_year(df) )
+    fig = mainpage(df.iloc[-1], current_year(df))
     figures.append(fig)
 
     fig = sales_any_other_data(df)
@@ -302,16 +311,15 @@ def get_overall(filename):
 
     fig = show_roe_opm_npm_line(df)
     figures.append(fig)
-    
+
     fig = compareLastYearResults(df)
     figures.append(fig)
 
-    fig =  compareLastYearResults_roe(df)
+    fig = compareLastYearResults_roe(df)
     figures.append(fig)
 
     fig = price_siv(df)
     figures.append(fig)
-
 
     return figures
 
