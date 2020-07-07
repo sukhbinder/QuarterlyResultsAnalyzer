@@ -24,6 +24,11 @@ def getQuarters(filename):
 
 #quaters=getQuarters(fpath+fname)
 
+def get_mcap(filename):
+    xp = pd.ExcelFile(filename)
+    data = xp.parse("Data Sheet")
+    mcap = data.iloc[7,1] 
+    return mcap
 
 def get_pl_bal_cash_price(filename):
     xp = pd.ExcelFile(filename)
@@ -46,6 +51,8 @@ def get_pl_bal_cash_price(filename):
     df = pd.concat([pl, bal, cash])
     df = df.T
     df["price"] = price
+
+    df['mcap'] = get_mcap(filename)
     return df
 
 # first = ["Sales","equity", "Profit before tax", "Cash from Operating Activity"]
@@ -264,13 +271,13 @@ def mainpage(df, cyear):
 
     Dividend: {:0.1f}  DebttoEquity: {:0.2f}    OPM: {:0.2f}%   NPM: {:0.2f}%
 
-    ROE: {:0.2f}%     GOAR: {:0.2f}%    Interest paid: {:0.2f}
+    ROE: {:0.2f}%     GOAR: {:0.2f}%    Interest paid: {:0.2f}   Market cap: {:0.2f}
     """
 
     fig, ax = plt.subplots(2, 2, figsize=(16, 6))
     ax = ax.ravel()
     valss = ["Sales", "Net profit", "cash", "BookValue",
-             "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest"]
+             "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest", "mcap"]
     vals = df[valss].values
     ax[0].text(0.1, 0.1, text.format(*vals), fontsize=15)
     ax[0].set_title("For Year {} ".format(cyear))
