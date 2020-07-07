@@ -24,11 +24,13 @@ def getQuarters(filename):
 
 #quaters=getQuarters(fpath+fname)
 
+
 def get_mcap(filename):
     xp = pd.ExcelFile(filename)
     data = xp.parse("Data Sheet")
-    mcap = data.iloc[7,1] 
+    mcap = data.iloc[7, 1]
     return mcap
+
 
 def get_pl_bal_cash_price(filename):
     xp = pd.ExcelFile(filename)
@@ -81,7 +83,7 @@ def add_otherdata(dft):
                         * dft.roe) / (1+dft.d2e)
     dft["eps"] = dft["Net profit"] / (dft["No. of Equity Shares"]/1e7)
     dft["cash"] = dft["Cash from Operating Activity"]
-    dft["Interest%NP"] = 100.0*(dft["Interest"] /dft["Net profit"])
+    dft["Interest%NP"] = 100.0*(dft["Interest"] / dft["Net profit"])
     return dft
 
 #GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
@@ -246,6 +248,37 @@ def compareLastYearResults(df):
     return fig
 
 
+def compareLastYearResults_with5year(df):
+    cols = ["Sales", "expense", "OperatingProfit", "Net profit",
+            "cash", "Dividend Amount", "Borrowings", "Interest"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+    last = df.iloc[-1:, :][cols]
+    means = df.iloc[-6:-1, :].mean()[cols]
+    data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
+    ip = data.T.plot(ax=ax[0], kind='bar',
+                     rot=0, title='5 Year Average Comparision')
+
+    p = data.pct_change().iloc[-1]*100
+    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+    # p.get_xaxis().set_visible(False)
+    return fig
+
+
+def compareLastYearResults_roe_with5year(df):
+    cols = ["opm", "npm", "roe", "GOAR", "Interest%NP", "d2e"]
+    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+    last = df.iloc[-1:, :][cols]
+    means = df.iloc[-6:-1, :].mean()[cols]
+    data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
+    ip = data.T.plot(ax=ax[0], kind='bar',
+                     rot=0, title='5 Year Average Comparision')
+
+    p = data.pct_change().iloc[-1]*100
+    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+    # p.get_xaxis().set_visible(False)
+    return fig
+
+
 def compareLastYearResults_roe(df):
     cols2 = ["opm", "npm", "roe", "GOAR", "Interest%NP", "d2e"]
     fig, ax = plt.subplots(2, 1, figsize=(16, 9))
@@ -322,7 +355,13 @@ def get_overall(filename):
     fig = compareLastYearResults(df)
     figures.append(fig)
 
+    fig = compareLastYearResults_with5year(df)
+    figures.append(fig)
+
     fig = compareLastYearResults_roe(df)
+    figures.append(fig)
+
+    fig = compareLastYearResults_roe_with5year(df)
     figures.append(fig)
 
     fig = price_siv(df)
