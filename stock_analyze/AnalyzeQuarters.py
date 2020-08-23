@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 
-matplotlib.style.use('bmh')
+# matplotlib.style.use('bmh')
+matplotlib.style.use('ggplot')
 
 
 def getQuarters(filename):
