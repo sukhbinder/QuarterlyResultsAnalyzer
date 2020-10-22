@@ -113,27 +113,30 @@ def Average10Year(df):
 def show_roe_opm_npm(df):
     margin_roe = ["opm", "cashbyNP"]
     second = ["npm", "roe"]
-    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
-    ax1 = df[margin_roe].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
-    ax1 = df[second].T.plot.bar(ax=ax[1], rot=0, title="10 Year History")
-    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+        ax1 = df[margin_roe].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
+        ax1 = df[second].T.plot.bar(ax=ax[1], rot=0, title="10 Year History")
+        # ax1.set_xticklabels(map(lambda x: x.year, df.index))
     return fig
 
 
 def show_roe_opm_npm_line(df):
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
-    ax1 = df[["opm", "cashbyNP"]].plot(ax=ax[0], figsize=(16, 9), rot=0)
-    ax1 = df[["npm", "roe"]].plot(ax=ax[1], figsize=(16, 9), rot=0)
-    # ax1.set_xticklabels(map(lambda x: x.year, df.index))
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
+        ax1 = df[["opm", "cashbyNP"]].plot(ax=ax[0], figsize=(16, 9), rot=0)
+        ax1 = df[["npm", "roe"]].plot(ax=ax[1], figsize=(16, 9), rot=0)
+        # ax1.set_xticklabels(map(lambda x: x.year, df.index))
     return fig
 
 
 def sales_any_other_data_line(df):
-    fig, ax = plt.subplots(2, 1, sharex=True,  figsize=(16, 9))
-    ax1 = df[["Sales", "equity"]].plot(ax=ax[0], rot=0)
-    ax2 = df[["Profit before tax", "Cash from Operating Activity"]].plot(
-        ax=ax[1], rot=0)
-    # ax[0].set_xticklabels(map(lambda x: x.year, df.index))
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, sharex=True,  figsize=(16, 9))
+        ax1 = df[["Sales", "equity"]].plot(ax=ax[0], rot=0)
+        ax2 = df[["Profit before tax", "Cash from Operating Activity"]].plot(
+            ax=ax[1], rot=0)
+        # ax[0].set_xticklabels(map(lambda x: x.year, df.index))
     return fig
 
 
@@ -141,155 +144,169 @@ def sales_any_other_data(df):
     first = ["Sales", "equity"]
     second = ["Profit before tax",
               "Cash from Operating Activity"]
-    fig, ax = plt.subplots(1, 2, figsize=(16, 9))
-    ax1 = df[first].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
-    ax1 = df[second].plot.bar(ax=ax[1], rot=0, title="10 Year History")
-    try:
-        ax1.set_xticklabels(map(lambda x: x.year, df.index))
-    except Exception:
-        pass
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 2, figsize=(16, 9))
+        ax1 = df[first].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
+        ax1 = df[second].plot.bar(ax=ax[1], rot=0, title="10 Year History")
+        try:
+            ax1.set_xticklabels(map(lambda x: x.year, df.index))
+        except Exception:
+            pass
     return fig
 
 
 def getHalfYearlyPercent(quaters):
-    fig, ax = plt.subplots(1, 1)
-    thisyear = quaters[quaters.columns[[-1, -2]]].sum(axis=1)
-    lastyear = quaters[quaters.columns[[-5, -6]]].sum(axis=1)
-    df = pd.DataFrame({'this': thisyear, 'last': lastyear})
-    df = df.T.pct_change().iloc[1]
-    p = df.plot(ax=ax, kind='bar', figsize=(16, 9),
-                title='Half Yearly %', table=True)
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        thisyear = quaters[quaters.columns[[-1, -2]]].sum(axis=1)
+        lastyear = quaters[quaters.columns[[-5, -6]]].sum(axis=1)
+        df = pd.DataFrame({'this': thisyear, 'last': lastyear})
+        df = df.T.pct_change().iloc[1]
+        p = df.plot(ax=ax, kind='bar', figsize=(16, 9),
+                    title='Half Yearly %', table=True)
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def getHalfYearly(quaters):
-    fig, ax = plt.subplots(1, 1)
-    thisyear = quaters[quaters.columns[[-1, -2]]].sum(axis=1)
-    lastyear = quaters[quaters.columns[[-5, -6]]].sum(axis=1)
-    df = pd.DataFrame({'this': thisyear, 'last': lastyear})
-    p = df.plot(ax=ax, kind='bar', figsize=(16, 9),
-                title='Half Yearly', table=True)
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        thisyear = quaters[quaters.columns[[-1, -2]]].sum(axis=1)
+        lastyear = quaters[quaters.columns[[-5, -6]]].sum(axis=1)
+        df = pd.DataFrame({'this': thisyear, 'last': lastyear})
+        p = df.plot(ax=ax, kind='bar', figsize=(16, 9),
+                    title='Half Yearly', table=True)
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def getQuaterlyFigures(quaters):
-    fig, ax = plt.subplots(1, 1)
-    data = quaters[quaters.columns[[-5, -2, -1]]]
-    p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
-                  rot=0, table=True, title='Quarterly Result')
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        data = quaters[quaters.columns[[-5, -2, -1]]]
+        p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
+                    rot=0, table=True, title='Quarterly Result')
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def compareLastQuarterResults(quaters):
-    fig, ax = plt.subplots(1, 1)
-    data = quaters[quaters.columns[[-5, -1]]]
-    p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
-                  rot=0, table=True, title='Last Year Quarter')
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        data = quaters[quaters.columns[[-5, -1]]]
+        p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
+                    rot=0, table=True, title='Last Year Quarter')
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def lastYearPercentChange(quaters):
-    fig, ax = plt.subplots(1, 1)
-    data = quaters[quaters.columns[[-5, -1]]]
-    df = data.T.pct_change().iloc[-1]
-    p = df.plot(ax=ax, kind='bar', rot=0,
-                title='Last Year % change', figsize=(16, 9), table=True)
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        data = quaters[quaters.columns[[-5, -1]]]
+        df = data.T.pct_change().iloc[-1]
+        p = df.plot(ax=ax, kind='bar', rot=0,
+                    title='Last Year % change', figsize=(16, 9), table=True)
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def getQuarterPercentChange(quaters):
-    fig, ax = plt.subplots(1, 1)
-    data = quaters[quaters.columns[[-2, -1]]]
-    df = data.T.pct_change().iloc[-1]
-    p = df.plot(ax=ax, kind='bar', figsize=(16, 9), rot=0,
-                title='% Quarter change', table=True)
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        data = quaters[quaters.columns[[-2, -1]]]
+        df = data.T.pct_change().iloc[-1]
+        p = df.plot(ax=ax, kind='bar', figsize=(16, 9), rot=0,
+                    title='% Quarter change', table=True)
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def getLastFiveQuarters(quaters):
-    fig, ax = plt.subplots(1, 1)
-    data = quaters[quaters.columns[[-5, -4, -3, -2, -1]]]
-    p = data.plot(ax=ax, kind='bar', figsize=(
-        16, 9), rot=0, title='Last 5 Quarters', table=True)
-    p.get_xaxis().set_visible(False)
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1)
+        data = quaters[quaters.columns[[-5, -4, -3, -2, -1]]]
+        p = data.plot(ax=ax, kind='bar', figsize=(
+            16, 9), rot=0, title='Last 5 Quarters', table=True)
+        p.get_xaxis().set_visible(False)
     return fig
 
 
 def TitleSlide(text='Thank You'):
-    fig = plt.figure(figsize=(16, 6))
-    plt.text(0.25, 0.5, text, fontsize=15)
-    plt.axis('off')
+    with plt.xkcd():
+        fig = plt.figure(figsize=(16, 6))
+        plt.text(0.25, 0.5, text, fontsize=15)
+        plt.axis('off')
     return fig
 
 
 def price_siv(df):
-    fig, ax = plt.subplots(1, 1, figsize=(16, 9))
-    cols = ["price", "siv", "siv2"]
-    ax1 = df[cols].plot(ax=ax, rot=0, title="Price with intrinsic value")
+    with plt.xkcd():
+        fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+        cols = ["price", "siv", "siv2"]
+        ax1 = df[cols].plot(ax=ax, rot=0, title="Price with intrinsic value")
     return fig
 
 
 def compareLastYearResults(df):
     cols = ["Sales", "expense", "OperatingProfit", "Net profit",
             "cash", "Dividend Amount", "Borrowings", "Interest"]
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    data = df.iloc[-2:, :]
-    ip = data[cols].T.plot(ax=ax[0], kind='bar',
-                           rot=0, title='Last Year Comparision')
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+        data = df.iloc[-2:, :]
+        ip = data[cols].T.plot(ax=ax[0], kind='bar',
+                            rot=0, title='Last Year Comparision')
 
-    p = data[cols].pct_change().iloc[-1]*100
-    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
-    # p.get_xaxis().set_visible(False)
+        p = data[cols].pct_change().iloc[-1]*100
+        ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+        # p.get_xaxis().set_visible(False)
     return fig
 
 
 def compareLastYearResults_with5year(df):
     cols = ["Sales", "expense", "OperatingProfit", "Net profit",
             "cash", "Dividend Amount", "Borrowings", "Interest"]
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    last = df.iloc[-1:, :][cols]
-    means = df.iloc[-6:-1, :].mean()[cols]
-    data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
-    ip = data.T.plot(ax=ax[0], kind='bar',
-                     rot=0, title='5 Year Average Comparision')
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+        last = df.iloc[-1:, :][cols]
+        means = df.iloc[-6:-1, :].mean()[cols]
+        data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
+        ip = data.T.plot(ax=ax[0], kind='bar',
+                        rot=0, title='5 Year Average Comparision')
 
-    p = data.pct_change().iloc[-1]*100
-    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+        p = data.pct_change().iloc[-1]*100
+        ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
     # p.get_xaxis().set_visible(False)
     return fig
 
 
 def compareLastYearResults_roe_with5year(df):
     cols = ["opm", "npm", "roe", "GOAR", "Interest%NP", "d2e"]
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    last = df.iloc[-1:, :][cols]
-    means = df.iloc[-6:-1, :].mean()[cols]
-    data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
-    ip = data.T.plot(ax=ax[0], kind='bar',
-                     rot=0, title='5 Year Average Comparision')
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+        last = df.iloc[-1:, :][cols]
+        means = df.iloc[-6:-1, :].mean()[cols]
+        data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
+        ip = data.T.plot(ax=ax[0], kind='bar',
+                        rot=0, title='5 Year Average Comparision')
 
-    p = data.pct_change().iloc[-1]*100
-    ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
-    # p.get_xaxis().set_visible(False)
+        p = data.pct_change().iloc[-1]*100
+        ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
+        # p.get_xaxis().set_visible(False)
     return fig
 
 
 def compareLastYearResults_roe(df):
     cols2 = ["opm", "npm", "roe", "GOAR", "Interest%NP", "d2e"]
-    fig, ax = plt.subplots(2, 1, figsize=(16, 9))
-    data = df.iloc[-2:, :]
-    ip = data[cols2].T.plot(ax=ax[0], kind='bar',
-                            rot=0, title='Last Year Comparision', alpha=0.8)
+    with plt.xkcd():
+        fig, ax = plt.subplots(2, 1, figsize=(16, 9))
+        data = df.iloc[-2:, :]
+        ip = data[cols2].T.plot(ax=ax[0], kind='bar',
+                                rot=0, title='Last Year Comparision', alpha=0.8)
 
-    p = data[cols2].pct_change().iloc[-1]*100
-    ia = p.plot.bar(ax=ax[1], rot=0, title='% change', alpha=0.8)
-    # p.get_xaxis().set_visible(False)
+        p = data[cols2].pct_change().iloc[-1]*100
+        ia = p.plot.bar(ax=ax[1], rot=0, title='% change', alpha=0.8)
+        # p.get_xaxis().set_visible(False)
     return fig
 
 # Tables
@@ -308,22 +325,23 @@ def mainpage(df, cyear):
     ROE: {:0.2f}%     GOAR: {:0.2f}%    Interest paid: {:0.2f}   Market cap: {:0.2f}
     """
 
+    # with plt.xkcd():
     fig, ax = plt.subplots(2, 2, figsize=(16, 6))
     ax = ax.ravel()
     valss = ["Sales", "Net profit", "cash", "BookValue",
-             "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest", "mcap"]
+            "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest", "mcap"]
     vals = df[valss].values
     ax[0].text(0.1, 0.1, text.format(*vals), fontsize=15)
     ax[0].set_title("For Year {} ".format(cyear))
     ax[0].axis('off')
     ax[1].axis('off')
     ax1 = df[["Sales", "Net profit", "cash", "BookValue",
-              "Dividend Amount", "Interest"]].plot.bar(ax=ax[2], rot=0)
+            "Dividend Amount", "Interest"]].plot.bar(ax=ax[2], rot=0)
     ax1 = df[["opm", "npm", "roe", "GOAR", "Interest%NP"]
-             ].plot.bar(ax=ax[3], rot=0)
+            ].plot.bar(ax=ax[3], rot=0)
     ax[2].grid(False)
     ax[3].grid(False)
-    # ax[1].axis('off')
+        # ax[1].axis('off')
     return fig
 
 
@@ -426,8 +444,12 @@ def CreatePDFFileFromFigures(figures, filename):
     ''' Creates PDF file from figures list'''
     pdf = PdfPages(filename)
     for fig in figures:
-        pdf.savefig(fig)
-
+        try:
+            pdf.savefig(fig)
+        except Exception as ex:
+            print(ex)
+            pass
+        
     pdf.close()
 
 
