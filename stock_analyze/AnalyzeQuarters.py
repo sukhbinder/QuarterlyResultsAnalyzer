@@ -439,6 +439,19 @@ def GetDataAsFigures(filename):
 
     return figures
 
+def get_commonsize_analysis(df):
+    plitems = ['Sales', 'Raw Material Cost', 'Change in Inventory', 'Power and Fuel',
+       'Other Mfr. Exp', 'Employee Cost', 'Selling and admin',
+       'Other Expenses', 'Other Income', 'Depreciation', 'Interest',
+       'Profit before tax', 'Tax', 'Net profit', 'Dividend Amount']
+    a = df[plitems].fillna(0.0)
+    no_items = len(plitems)
+    for i in range(1,no_items):
+        a.iloc[:,i] = a.iloc[:,i]/a.iloc[:,0]*100.0
+    a.iloc[:,0] = a.iloc[:,0]/a.iloc[:,0]*100
+    return a.T.round(1)
+
+
 
 def CreatePDFFileFromFigures(figures, filename):
     ''' Creates PDF file from figures list'''
