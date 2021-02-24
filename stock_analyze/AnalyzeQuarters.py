@@ -443,7 +443,7 @@ def get_commonsize_analysis(df):
     plitems = ['Sales', 'Raw Material Cost', 'Change in Inventory', 'Power and Fuel',
        'Other Mfr. Exp', 'Employee Cost', 'Selling and admin',
        'Other Expenses', 'Other Income', 'Depreciation', 'Interest',
-       'Profit before tax', 'Tax', 'Net profit', 'Dividend Amount']
+       'Profit before tax', 'Tax', 'Net profit', 'Dividend Amount', "Investments", "equity"]
     a = df[plitems].fillna(0.0)
     no_items = len(plitems)
     for i in range(1,no_items):
