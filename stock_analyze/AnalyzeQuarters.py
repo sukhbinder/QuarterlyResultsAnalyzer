@@ -23,7 +23,7 @@ def getQuarters(filename):
     quaters.index.name = 'Quaters'
     return quaters
 
-#quaters=getQuarters(fpath+fname)
+# quaters=getQuarters(fpath+fname)
 
 
 def get_mcap(filename):
@@ -46,9 +46,11 @@ def get_pl_bal_cash_price(filename):
     pl.index.name = "PL"
 
     bal.set_index('Report Date', inplace=True)
+    bal.drop("Report Date", inplace=True)
     bal.index.name = "BalanceSheet"
 
     cash.set_index('Report Date', inplace=True)
+    cash.drop("Report Date", inplace=True)
     cash.index.name = "CashFlow"
 
     df = pd.concat([pl, bal, cash])
@@ -56,7 +58,7 @@ def get_pl_bal_cash_price(filename):
     df["price"] = price
 
     df['mcap'] = get_mcap(filename)
-    return df
+    return df, (pl, bal, cash)
 
 # first = ["Sales","equity", "Profit before tax", "Cash from Operating Activity"]
 # margin_roe =["opm", "npm", "roe"]
@@ -87,8 +89,8 @@ def add_otherdata(dft):
     dft["Interest%NP"] = 100.0*(dft["Interest"] / dft["Net profit"])
     return dft
 
-#GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
-#quick rank =Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
+# GOAR = (Net Profit last year -Net Profit preceding year )/(Net Profit last year -Dividend last year ) *100
+# quick rank =Growth of Additional Rs * Cash by Net Profit  * Return on equity / (Debt to equity +1)
 # cash/np = Cash from operations last year / Net Profit last year
 # siv = (Return on equity preceding year/12.00)* Book value
 
@@ -98,7 +100,7 @@ def current_year(df):
         df.index = pd.to_datetime(df.index)
         year = df.index.year[-1]
     except Exception:
-       year = df.index[-1]
+        year = df.index[-1]
     return year
 
 
@@ -115,7 +117,8 @@ def show_roe_opm_npm(df):
     second = ["npm", "roe"]
     with plt.xkcd():
         fig, ax = plt.subplots(1, 2, figsize=(16, 9))
-        ax1 = df[margin_roe].T.plot.bar(ax=ax[0], rot=0, title="10 Year History")
+        ax1 = df[margin_roe].T.plot.bar(
+            ax=ax[0], rot=0, title="10 Year History")
         ax1 = df[second].T.plot.bar(ax=ax[1], rot=0, title="10 Year History")
         # ax1.set_xticklabels(map(lambda x: x.year, df.index))
     return fig
@@ -185,7 +188,7 @@ def getQuaterlyFigures(quaters):
         fig, ax = plt.subplots(1, 1)
         data = quaters[quaters.columns[[-5, -2, -1]]]
         p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
-                    rot=0, table=True, title='Quarterly Result')
+                      rot=0, table=True, title='Quarterly Result')
         p.get_xaxis().set_visible(False)
     return fig
 
@@ -195,7 +198,7 @@ def compareLastQuarterResults(quaters):
         fig, ax = plt.subplots(1, 1)
         data = quaters[quaters.columns[[-5, -1]]]
         p = data.plot(ax=ax, kind='bar', figsize=(16, 9),
-                    rot=0, table=True, title='Last Year Quarter')
+                      rot=0, table=True, title='Last Year Quarter')
         p.get_xaxis().set_visible(False)
     return fig
 
@@ -255,7 +258,7 @@ def compareLastYearResults(df):
         fig, ax = plt.subplots(2, 1, figsize=(16, 9))
         data = df.iloc[-2:, :]
         ip = data[cols].T.plot(ax=ax[0], kind='bar',
-                            rot=0, title='Last Year Comparision')
+                               rot=0, title='Last Year Comparision')
 
         p = data[cols].pct_change().iloc[-1]*100
         ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
@@ -272,7 +275,7 @@ def compareLastYearResults_with5year(df):
         means = df.iloc[-6:-1, :].mean()[cols]
         data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
         ip = data.T.plot(ax=ax[0], kind='bar',
-                        rot=0, title='5 Year Average Comparision')
+                         rot=0, title='5 Year Average Comparision')
 
         p = data.pct_change().iloc[-1]*100
         ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
@@ -288,7 +291,7 @@ def compareLastYearResults_roe_with5year(df):
         means = df.iloc[-6:-1, :].mean()[cols]
         data = pd.DataFrame(means, columns=["5year_av"]).T.append(last)
         ip = data.T.plot(ax=ax[0], kind='bar',
-                        rot=0, title='5 Year Average Comparision')
+                         rot=0, title='5 Year Average Comparision')
 
         p = data.pct_change().iloc[-1]*100
         ia = p.plot.bar(ax=ax[1], rot=0, title='% change')
@@ -329,19 +332,19 @@ def mainpage(df, cyear):
     fig, ax = plt.subplots(2, 2, figsize=(16, 6))
     ax = ax.ravel()
     valss = ["Sales", "Net profit", "cash", "BookValue",
-            "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest", "mcap"]
+             "Dividend Amount", "d2e", "opm", "npm", "roe", "GOAR", "Interest", "mcap"]
     vals = df[valss].values
     ax[0].text(0.1, 0.1, text.format(*vals), fontsize=15)
     ax[0].set_title("For Year {} ".format(cyear))
     ax[0].axis('off')
     ax[1].axis('off')
     ax1 = df[["Sales", "Net profit", "cash", "BookValue",
-            "Dividend Amount", "Interest"]].plot.bar(ax=ax[2], rot=0)
+              "Dividend Amount", "Interest"]].plot.bar(ax=ax[2], rot=0)
     ax1 = df[["opm", "npm", "roe", "GOAR", "Interest%NP"]
-            ].plot.bar(ax=ax[3], rot=0)
+             ].plot.bar(ax=ax[3], rot=0)
     ax[2].grid(False)
     ax[3].grid(False)
-        # ax[1].axis('off')
+    # ax[1].axis('off')
     return fig
 
 
@@ -353,7 +356,7 @@ def get_overall(filename):
     # fig = TitleSlide(os.path.basename(filename).replace('.xlsx', ''))
     # figures.append(fig)
 
-    df = get_pl_bal_cash_price(filename)
+    df, _ = get_pl_bal_cash_price(filename)
     df = add_otherdata(df)
 
     fig = mainpage(df.iloc[-1], current_year(df))
@@ -439,18 +442,18 @@ def GetDataAsFigures(filename):
 
     return figures
 
+
 def get_commonsize_analysis(df):
     plitems = ['Sales', 'Raw Material Cost', 'Change in Inventory', 'Power and Fuel',
-       'Other Mfr. Exp', 'Employee Cost', 'Selling and admin',
-       'Other Expenses', 'Other Income', 'Depreciation', 'Interest',
-       'Profit before tax', 'Tax', 'Net profit', 'Dividend Amount', "Investments", "equity"]
+               'Other Mfr. Exp', 'Employee Cost', 'Selling and admin',
+               'Other Expenses', 'Other Income', 'Depreciation', 'Interest',
+               'Profit before tax', 'Tax', 'Net profit', 'Dividend Amount', "Investments", "equity"]
     a = df[plitems].fillna(0.0)
     no_items = len(plitems)
-    for i in range(1,no_items):
-        a.iloc[:,i] = a.iloc[:,i]/a.iloc[:,0]*100.0
-    a.iloc[:,0] = a.iloc[:,0]/a.iloc[:,0]*100
+    for i in range(1, no_items):
+        a.iloc[:, i] = a.iloc[:, i]/a.iloc[:, 0]*100.0
+    a.iloc[:, 0] = a.iloc[:, 0]/a.iloc[:, 0]*100
     return a.T.round(1)
-
 
 
 def CreatePDFFileFromFigures(figures, filename):
@@ -462,7 +465,7 @@ def CreatePDFFileFromFigures(figures, filename):
         except Exception as ex:
             print(ex)
             pass
-        
+
     pdf.close()
 
 
