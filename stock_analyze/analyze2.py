@@ -7,11 +7,9 @@ import argparse
 
 
 
-def get_data_in_excel(fname):
+def get_data_in_excel(fname, figures=False):
     df = sa.get_pl_bal_cash_price(fname)
     df1 = sa.add_otherdata(df)
-
-    fig = sa.get_overall(fname)
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -35,17 +33,22 @@ def get_data_in_excel(fname):
         ws1.append(r)
 
     outfile = os.path.join(os.path.dirname(fname), "AN_{}".format(os.path.basename(fname)))
+    
     with tempfile.TemporaryDirectory(prefix="work_") as tempdir:
-        for i, f in enumerate(fig):
-            ws1 = wb.create_sheet(str(i))
-            figname = "{}.png".format(i)
-            figname = os.path.join(tempdir, figname)
-            f.savefig(figname, dpi=150)
-            img = openpyxl.drawing.image.Image(figname)
-            ws1.add_image(img)
-            a=ws1.cell(1,2,1);
-        
+        if figures:
+            figures_in_workbook(fname, wb, tempdir)
         wb.save(outfile)
+
+def figures_in_workbook(fname, wb, tempdir):
+    fig = sa.get_overall(fname)
+    for i, f in enumerate(fig):
+        ws1 = wb.create_sheet(str(i))
+        figname = "{}.png".format(i)
+        figname = os.path.join(tempdir, figname)
+        f.savefig(figname, dpi=150)
+        img = openpyxl.drawing.image.Image(figname)
+        ws1.add_image(img)
+        a=ws1.cell(1,2,1)
 
 
 def main():
