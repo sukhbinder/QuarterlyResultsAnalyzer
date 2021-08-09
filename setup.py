@@ -10,6 +10,8 @@ setup(
     author_email="sukh2010@yahoo.com",
     entry_points={
         'console_scripts': ['analyze = stock_analyze.AnalyzeQuarters:main',
-                            'analyze_excel = stock_analyze.analyze2:main']
+                            'analyze_excel = stock_analyze.analyze2:main',
+                            'plotgraphs = stock_analyze.analyze_chartjs:main',
+                            ]
     }
 )
